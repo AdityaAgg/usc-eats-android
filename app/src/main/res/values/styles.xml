@@ -1,0 +1,60 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:spinnerDropDownItemStyle">@style/CustomSpinnerDropDownItem</item>
+        <item name="android:spinnerItemStyle">@style/CustomSpinnerItem</item>
+    </style>
+    
+    <!-- Spinner drop down styles-->
+    <style name="CustomSpinnerItem" parent="android:Widget.DropDownItem.Spinner">
+        <item name="android:textAppearance">@style/CustomSpinnerItemText</item>
+    </style>
+    <style name="CustomSpinnerItemText" parent="@android:style/Widget">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="CustomSpinnerDropDownItem" parent="@android:style/Widget.Holo.DropDownItem.Spinner">
+        <item name="android:textAppearance">@style/CustomSpinnerDropDownItemText</item>
+    </style>
+    <style name="CustomSpinnerDropDownItemText" parent="@android:style/Widget">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="CustomTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@style/CustomTabText</item>
+        <item name="tabSelectedTextColor">@color/gold</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabMode">fixed</item>
+        <item name="tabContentStart">72dp</item>
+        <item name="tabIndicatorColor">@color/gold</item>
+    </style>
+    <style name="CustomTabText" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/gold</item>
+    </style>
+
+    <style name="Widget.CardContent" parent="android:Widget">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">24dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="CollapsedTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#00ffffff</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="ExpandedTextAppearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">5</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:shadowRadius">5</item>
+    </style>
+</resources>

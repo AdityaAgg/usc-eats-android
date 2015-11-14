@@ -1,0 +1,19 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <group
+        android:icon="@drawable/ic_calendar"
+        android:checkableBehavior="none"
+        app:actionViewClass="android.widget.Spinner"
+        app:showAsAction="ifRoom">
+            <item
+                android:id="@+id/date"
+                android:title="November 14th" />
+            <item
+                android:id="@+id/date2"
+                android:title="November 15th" />
+    </group>
+</menu>

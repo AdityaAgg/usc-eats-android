@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">USC Eats</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="toolbar_spinner_weekday_items">
+        <item>Breakfast</item>
+        <item>Lunch</item>
+        <item>Dinner</item>
+    </string-array>
+    <string-array name="toolbar_spinner_weekend_items">
+        <item>Brunch</item>
+        <item>Dinner</item>
+    </string-array>
+</resources>
