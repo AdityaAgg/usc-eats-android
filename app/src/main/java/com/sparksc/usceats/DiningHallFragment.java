@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.sparksc.usceats.FeastObjects.Menu;
+import com.sparksc.usceats.FeastObjects.Section;
 import com.sparksc.usceats.models.DiningHallStation;
 import com.sparksc.usceats.utils.DiningHallUtils;
 
@@ -37,7 +39,9 @@ public class DiningHallFragment extends Fragment {
     MenuRecyclerViewAdapter recyclerViewAdapter;
     DiningHallUtils.DiningHallType diningHallType;
     DiningHallUtils.MealTime selectedMealTime;
-    ArrayList<DiningHallStation> diningHallStations = new ArrayList<>();
+    USCDatabaseManager databaseManager;
+    String selectedDay;
+    ArrayList<Section> diningHallStations = new ArrayList<>();
 
     // endregion
 
@@ -53,7 +57,8 @@ public class DiningHallFragment extends Fragment {
                 .values()[getArguments().getInt(DiningHallUtils.DINING_HALL_TYPE)];
         selectedMealTime = DiningHallUtils.MealTime
                 .values()[getArguments().getInt(DiningHallUtils.MEAL_TIME)];
-
+        selectedDay = DiningHallUtils.getDay();
+        databaseManager=new USCDatabaseManager(getContext());
         setupRecyclerView();
 
         return view;
@@ -64,9 +69,12 @@ public class DiningHallFragment extends Fragment {
     // region Interactions
 
     public void onMealTimeChanged(DiningHallUtils.MealTime mealTime) {
-        // TODO don't use fake data
+
         Log.d("Nikhil", "Meal Time: " + mealTime);
-        if (selectedMealTime != mealTime && diningHallStations != null) {
+        databaseManager.refreshRestaurants();
+        ArrayList<Menu> menus=databaseManager.getMenus();
+
+        if (selectedMealTime != mealTime && diningHallStations != null && selectedDay!=null) {
             selectedMealTime = mealTime;
             diningHallStations.clear();
             getArguments().putInt(DiningHallUtils.MEAL_TIME, mealTime.ordinal());

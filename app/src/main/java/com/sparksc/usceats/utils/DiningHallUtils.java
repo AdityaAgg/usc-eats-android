@@ -1,6 +1,11 @@
 package com.sparksc.usceats.utils;
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * A Utils class to maintain consistency with dining hall items across different activities and
@@ -53,6 +58,7 @@ public class DiningHallUtils {
                 case 23:
                     return MealTime.DINNER;
                 default:
+                    Log.d("Aditya: ","The app should not reach here");
                     return MealTime.DINNER;
             }
         } else {
@@ -68,13 +74,13 @@ public class DiningHallUtils {
                 case 8:
                 case 9:
                 case 10:
-                    return MealTime.BRUNCH;
                 case 11:
                 case 12:
                 case 13:
                 case 14:
                 case 15:
                 case 16:
+                    return MealTime.BRUNCH;
                 case 17:
                 case 18:
                 case 19:
@@ -87,6 +93,10 @@ public class DiningHallUtils {
                     return MealTime.DINNER;
             }
         }
+    }
+
+    public static String getDay(){
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 
     /**
