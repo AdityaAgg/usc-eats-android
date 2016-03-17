@@ -4,16 +4,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sparksc.usceats.FeastObjects.Menu;
 import com.sparksc.usceats.FeastObjects.Restaurant;
-import com.sparksc.usceats.utils.NetworkingUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by adityaaggarwal on 3/15/16.
@@ -37,127 +35,113 @@ public class USCDatabaseManager extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + RESTAURANT_TABLE_NAME + " (Restaurant TEXT);";
     private static final String INSERT_INTO_MENUS="INSERT INTO "+MENU_TABLE_NAME+" VALUES ";
     private static final String INSERT_INTO_RESTAURANTS="INSERT INTO "+RESTAURANT_TABLE_NAME+" VALUES ";
-    public static FeastforAndroid feastforAndroid;
-    private Context context;
-    private ArrayList<Menu> menus=new ArrayList<>();
-    private ArrayList<Restaurant> restaurants= new ArrayList<>();
 
+    private static USCDatabaseManager uscDatabaseManager;
     USCDatabaseManager(Context context) {
         super(context, DATABASE_NAME, null, databaseVersion);
-        this.context=context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(MENU_TABLE_CREATE);
         db.execSQL(RESTAURANT_TABLE_CREATE);
-        if(NetworkingUtils.isNetworkAvailable(context)) {
-            feastforAndroid = new FeastforAndroid(context);
-            storeRestaurants();
-            storeMenus();
-        }
+        Log.d("Aditya: ", "onCreate for database has been called");
     }
+
+    /*gets USC Database manager*/
+    public static synchronized USCDatabaseManager getInstance(Context context) {
+        // Use the application context, which will ensure that you
+        // don't accidentally leak an Activity's context.
+        // See this article for more information: http://bit.ly/6LRzfx
+        if (uscDatabaseManager == null) {
+            uscDatabaseManager = new USCDatabaseManager(context.getApplicationContext());
+        }
+        return uscDatabaseManager;
+    }
+
 
     @Override
     public void onUpgrade (SQLiteDatabase db, int oldVersion, int newVersion){
-        getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + MENU_TABLE_NAME);
-        getWritableDatabase().execSQL("DROP TABLE IF EXISTS " + RESTAURANT_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MENU_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + RESTAURANT_TABLE_NAME);
         databaseVersion=newVersion;
         onCreate(db);
     }
 
-    public void refreshRestaurants(){
-        if(NetworkingUtils.isNetworkAvailable(context)) {
-            if(feastforAndroid==null){
-                feastforAndroid=new FeastforAndroid(context);
-            } else {
-                feastforAndroid.refreshRestaurants(context);
-            }
-            storeRestaurants();
-        }
-    }
+//    public void refreshRestaurants(){
+//        if(getWritableDatabase()!=null) {
+//            if (NetworkingUtils.isNetworkAvailable(context)) {
+//                if (feastforAndroid == null) {
+//                    feastforAndroid = new FeastforAndroid(context);
+//                } else {
+//                    feastforAndroid.refreshRestaurants(context);
+//                }
+//                storeRestaurants(getWritableDatabase());
+//            }
+//        } else {
+//            Log.d("Aditya: ", "Refreshing restaurants, database was null");
+//        }
+//    }
+//
+//
+//
+//    public void refreshMenus(){
+//        if(uscDatabaseManager!=null) {
+//            if (NetworkingUtils.isNetworkAvailable(context)) {
+//                if (feastforAndroid == null) {
+//                    feastforAndroid = new FeastforAndroid(context);
+//                } else {
+//                    feastforAndroid.refreshMenus(context);
+//                }
+//                Gson gson = new Gson();
+//                SQLiteDatabase db=getWritableDatabase();
+//                db.execSQL("delete from " + MENU_TABLE_NAME);
+//                db.execSQL(INSERT_INTO_MENUS + "(" + gson.toJson(feastforAndroid.getMenus()) + ");");
+//            }
+//        } else {
+//            Log.d("Aditya: ", "Refreshing menus, database was null");
+//        }
+//    }
 
 
 
-    public void refreshMenus(){
-        if(NetworkingUtils.isNetworkAvailable(context)) {
-            if(feastforAndroid==null){
-                feastforAndroid=new FeastforAndroid(context);
-            } else {
-                feastforAndroid.refreshMenus(context);
-            }
-            Gson gson=new Gson();
-            getWritableDatabase().execSQL("delete from " + MENU_TABLE_NAME);
-            getWritableDatabase().execSQL(INSERT_INTO_MENUS + "(" + gson.toJson(feastforAndroid.getMenus()) + ");");
-        }
-    }
-
-
-
-    public void getMenusfromDatabase(){
-        Cursor menuCursor= getReadableDatabase().rawQuery("SELECT * FROM " + MENU_TABLE_NAME, null);
+    public ArrayList<Menu> getMenusfromDatabase(){
+        Cursor menuCursor= getReadableDatabase().rawQuery("SELECT FROM " + MENU_TABLE_NAME, null);
         menuCursor.moveToFirst();
+
+        Gson gson=new Gson();
+        ArrayList<Menu> menus=gson.fromJson(menuCursor.getString(0), new TypeToken<ArrayList<Menu>>() {
+        }.getType());
         menuCursor.close();
-        Gson gson=new Gson();
-        menus=gson.fromJson(menuCursor.getString(1), new TypeToken<ArrayList<Menu>>() {
-        }.getType());
-
+        return menus;
     }
 
-    public void getRestaurantsfromDatabase(){
-        Cursor restaurantCursor= getReadableDatabase().rawQuery("SELECT * FROM " + RESTAURANT_TABLE_NAME, null);
+    public ArrayList<Restaurant> getRestaurantsfromDatabase(){
+        Cursor restaurantCursor= getReadableDatabase().rawQuery("SELECT FROM " + RESTAURANT_TABLE_NAME, null);
         restaurantCursor.moveToFirst();
-        restaurantCursor.close();
+
         Gson gson=new Gson();
-
-        restaurants= gson.fromJson(restaurantCursor.getString(1), new TypeToken<ArrayList<Restaurant>>() {
+        ArrayList<Restaurant> restaurants= gson.fromJson(restaurantCursor.getString(0), new TypeToken<ArrayList<Restaurant>>() {
         }.getType());
-    }
 
-    public ArrayList<Restaurant> getRestaurants(){
-        if(restaurants.size()==0){
-            getRestaurantsfromDatabase();
-        }
+        restaurantCursor.close();
         return restaurants;
     }
 
-    public ArrayList<Menu> getMenus(){
-        if(menus.size()==0){
-            getMenusfromDatabase();
-        }
-        return menus;
-    }
-    public Menu getMenuOnDayandRestaurant(Date date, Restaurant restaurant){
-        for(Menu menu:menus){
-            Calendar calendar=Calendar.getInstance();
-            calendar.setTime(date);
-            int dayofMonth=calendar.get(Calendar.DAY_OF_MONTH);
-            int year=calendar.get(Calendar.YEAR);
-            int month=calendar.get(Calendar.MONTH);
-
-            Date menuDate=menu.getDate();
-            calendar.setTime(menuDate);
-            int dayofMonthMenuObject=calendar.get(Calendar.DAY_OF_MONTH);
-            int yearMenuObject=calendar.get(Calendar.YEAR);
-            int monthMenuObject=calendar.get(Calendar.MONTH);
-            if(dayofMonth==dayofMonthMenuObject && year==yearMenuObject && month==monthMenuObject && restaurant.getId().equals(menu.getRestaurantID())){
-                return menu;
-            }
-        }
-        return null;
-    }
 
 
-    private void storeRestaurants(){
+    public void storeRestaurants(ArrayList<Restaurant>restaurants){
         Gson gson=new Gson();
-        getWritableDatabase().execSQL("delete from " + RESTAURANT_TABLE_NAME);
-        getWritableDatabase().execSQL(INSERT_INTO_RESTAURANTS + "(" + gson.toJson(feastforAndroid.getRestaurants()) + ");");
+
+        getWritableDatabase().execSQL("DELETE FROM " + RESTAURANT_TABLE_NAME);
+        String json=gson.toJson(restaurants);
+        getWritableDatabase().execSQL(INSERT_INTO_RESTAURANTS + "('" + json + "');");
 
     }
 
-    private void storeMenus(){
+    public void storeMenus(ArrayList<Menu>menus){
             Gson gson=new Gson();
-            getWritableDatabase().execSQL("delete from " + MENU_TABLE_NAME);
-            getWritableDatabase().execSQL(INSERT_INTO_MENUS + "(" + gson.toJson(feastforAndroid.getMenus()) + ");");
+            getWritableDatabase().execSQL("DELETE FROM " + MENU_TABLE_NAME);
+            getWritableDatabase().execSQL(INSERT_INTO_MENUS + "('" + gson.toJson(menus) + "');");
     }
 }

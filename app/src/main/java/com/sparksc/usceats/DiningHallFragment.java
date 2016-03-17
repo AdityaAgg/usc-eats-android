@@ -11,15 +11,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.sparksc.usceats.FeastObjects.FoodItem;
+import com.sparksc.usceats.FeastObjects.Meal;
 import com.sparksc.usceats.FeastObjects.Menu;
 import com.sparksc.usceats.FeastObjects.Section;
-import com.sparksc.usceats.models.DiningHallStation;
 import com.sparksc.usceats.utils.DiningHallUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.Bind;
@@ -37,11 +40,11 @@ public class DiningHallFragment extends Fragment {
     @Bind(R.id.menu) RecyclerView recyclerView;
 
     MenuRecyclerViewAdapter recyclerViewAdapter;
-    DiningHallUtils.DiningHallType diningHallType;
+    String diningHallType;
     DiningHallUtils.MealTime selectedMealTime;
     USCDatabaseManager databaseManager;
     String selectedDay;
-    ArrayList<Section> diningHallStations = new ArrayList<>();
+    ArrayList<Section> sections = new ArrayList<>();
 
     // endregion
 
@@ -52,9 +55,8 @@ public class DiningHallFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dining_hall, container, false);
         ButterKnife.bind(this, view);
-
-        diningHallType = DiningHallUtils.DiningHallType
-                .values()[getArguments().getInt(DiningHallUtils.DINING_HALL_TYPE)];
+        //databaseManager.refreshMenus();
+        diningHallType = getArguments().getString("Dining Hall ID");
         selectedMealTime = DiningHallUtils.MealTime
                 .values()[getArguments().getInt(DiningHallUtils.MEAL_TIME)];
         selectedDay = DiningHallUtils.getDay();
@@ -71,52 +73,34 @@ public class DiningHallFragment extends Fragment {
     public void onMealTimeChanged(DiningHallUtils.MealTime mealTime) {
 
         Log.d("Nikhil", "Meal Time: " + mealTime);
-        databaseManager.refreshRestaurants();
-        ArrayList<Menu> menus=databaseManager.getMenus();
 
-        if (selectedMealTime != mealTime && diningHallStations != null && selectedDay!=null) {
+        FeastforAndroid feastforAndroid=FeastforAndroid.getInstance(getContext());
+        Menu menuofDay=feastforAndroid.getMenuOnDayandRestaurant(Calendar.getInstance().getTime(), diningHallType);
+        if (selectedMealTime != mealTime && sections != null && selectedDay!=null) {
             selectedMealTime = mealTime;
-            diningHallStations.clear();
+            sections.clear();
             getArguments().putInt(DiningHallUtils.MEAL_TIME, mealTime.ordinal());
+            if(menuofDay!=null)
             switch (mealTime) {
                 case BREAKFAST:
-                    for (int i = 0; i < 10; i++) {
-                        ArrayList<String> testList = new ArrayList<>();
-                        testList.add("Eggs");
-                        testList.add("Bacon");
-                        testList.add("Pancakes");
-                        DiningHallStation d = new DiningHallStation(testList, "Breakfast");
-                        diningHallStations.add(d);
-                    }
-                    break;
-                case BRUNCH:
-                    for (int i = 0; i < 10; i++) {
-                        ArrayList<String> testList = new ArrayList<>();
-                        testList.add("Watermelon");
-                        testList.add("Grapes");
-                        testList.add("Apples");
-                        DiningHallStation d = new DiningHallStation(testList, "Fruit Bar");
-                        diningHallStations.add(d);
+
+                    Meal meal= menuofDay.getMeal("Breakfast");
+                    if(meal!=null)
+                    for (Section section:meal.getSections()) {
+                        sections.add(section);
                     }
                     break;
                 case LUNCH:
-                    for (int i = 0; i < 10; i++) {
-                        ArrayList<String> testList = new ArrayList<>();
-                        testList.add("Tomatoes");
-                        testList.add("Cucumbers");
-                        testList.add("Spinach");
-                        testList.add("Carrots");
-                        DiningHallStation d = new DiningHallStation(testList, "Salad");
-                        diningHallStations.add(d);
+                    meal=menuofDay.getMeal("Lunch");
+                    for (Section section:meal.getSections()) {
+                        sections.add(section);
                     }
                     break;
                 case DINNER:
-                    for (int i = 0; i < 10; i++) {
-                        ArrayList<String> testList = new ArrayList<>();
-                        testList.add("Burgers");
-                        testList.add("Hot Dogs");
-                        DiningHallStation d = new DiningHallStation(testList, "Grill");
-                        diningHallStations.add(d);
+                    meal=menuofDay.getMeal("Dinner");
+                    if(meal!=null)
+                    for (Section section:meal.getSections()) {
+                        sections.add(section);
                     }
                     break;
             }
@@ -129,8 +113,24 @@ public class DiningHallFragment extends Fragment {
     // region Helpers
 
     private void setupRecyclerView() {
+        FeastforAndroid feastforAndroid=FeastforAndroid.getInstance(getContext());
+        Menu menu = feastforAndroid.getMenuOnDayandRestaurant(Calendar.getInstance().getTime(), diningHallType);
+        if(menu!=null) {
+            if (selectedMealTime == DiningHallUtils.MealTime.BREAKFAST) {
+                if(menu.getMeal("Breakfast")!=null)
+                sections = menu.getMeal("Breakfast").getSections();
+            } else if (selectedMealTime == DiningHallUtils.MealTime.LUNCH) {
+                sections = menu.getMeal("Lunch").getSections();
+            } else if (selectedMealTime == DiningHallUtils.MealTime.DINNER) {
+                if(menu.getMeal("Dinner")!=null) {
+                    sections = menu.getMeal("Dinner").getSections();
+                }
+            }
+        } else {
+            sections=new ArrayList<>();
+        }
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        recyclerViewAdapter = new MenuRecyclerViewAdapter(this.getContext(), diningHallStations);
+        recyclerViewAdapter = new MenuRecyclerViewAdapter(this.getContext(), sections);
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
@@ -144,12 +144,12 @@ public class DiningHallFragment extends Fragment {
     private static class MenuRecyclerViewAdapter
             extends RecyclerView.Adapter<MenuRecyclerViewAdapter.ViewHolder> {
 
-        private List<DiningHallStation> values;
+        private List<Section> sections;
         private Context context;
 
         public MenuRecyclerViewAdapter(@NonNull Context context,
-                                       @NonNull List<DiningHallStation> items) {
-            this.values = items;
+                                       @NonNull List<Section> items) {
+            this.sections = items;
             this.context = context;
         }
 
@@ -162,18 +162,13 @@ public class DiningHallFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int position) {
-            DiningHallStation diningHallStation = values.get(position);
-            viewHolder.diningHallStationHeaderView.setText(diningHallStation.getName());
-            viewHolder.clearTextViews();
-            ArrayList<String> foodItems = diningHallStation.getFoodItems();
-            for (String foodItem : foodItems) {
-                viewHolder.addTextView(foodItem);
-            }
+            Section section = sections.get(position);
+            viewHolder.setData(section);
         }
 
         @Override
         public int getItemCount() {
-            return values.size();
+            return sections.size();
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -192,27 +187,20 @@ public class DiningHallFragment extends Fragment {
                 menuItems = new ArrayList<>();
             }
 
-            public void addTextView(String text) {
-                if (context != null) {
-                    // create a new textview
-                    final TextView rowTextView = new TextView(context);
-
-                    // set some properties of rowTextView or something
-                    rowTextView.setText(text);
-
-                    // add the textview to the linearlayout
-                    cardLayout.addView(rowTextView);
-
-                    // save reference to the textview
-                    menuItems.add(rowTextView);
+            public void setData(Section section){
+                diningHallStationHeaderView.setText(section.getName());
+                for(FoodItem foodItem:section.getFoodItems()){
+                    TextView foodItemName=(TextView)view.findViewById(R.id.food_item_text);
+                    foodItemName.setText(foodItem.getFoodName());
+                    ImageView imageView=(ImageView)view.findViewById(R.id.dietary_identifier);
+                    if(foodItem.isV()){
+                        imageView.setImageResource(R.drawable.iconvegan);
+                    } else if(foodItem.isVT()){
+                        imageView.setImageResource(R.drawable.iconvegetarian);
+                    } else {
+                        imageView.setVisibility(View.GONE);
+                    }
                 }
-            }
-
-            public void clearTextViews() {
-                for (TextView textView : menuItems) {
-                    cardLayout.removeView(textView);
-                }
-                menuItems.clear();
             }
         }
     }

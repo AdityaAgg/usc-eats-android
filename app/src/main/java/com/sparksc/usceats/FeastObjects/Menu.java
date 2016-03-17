@@ -27,7 +27,8 @@ public class Menu implements Serializable{
             for(int i=0; i<mealsJSON.length(); i++){
                 meals.add(new Meal(mealsJSON.getJSONObject(i)));
             }
-            date= new SimpleDateFormat("EEE, MMM dd yyyy HH:mm:ss z", Locale.US).parse(jsonObject.getString("date"));
+            String dateString=jsonObject.getString("date");
+            date= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).parse(jsonObject.getString("date"));
         } catch (JSONException|ParseException e) {
             e.printStackTrace();
         }
@@ -43,6 +44,13 @@ public class Menu implements Serializable{
     }
     public ArrayList<Meal> getMeals(){
         return meals;
+    }
+    public Meal getMeal(String mealtime){
+        for(Meal meal:meals){
+            if(meal.getName().equals(mealtime))
+                return meal;
+        }
+        return null;
     }
 
 }

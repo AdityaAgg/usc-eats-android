@@ -12,17 +12,23 @@ import java.util.ArrayList;
  */
 public class Meal implements Serializable {
     public String name;
-    public ArrayList<Section> sectionItems;
+    public ArrayList<Section> sections=new ArrayList<>();
     public Meal(JSONObject jsonObject){
         try {
             name = jsonObject.getString("meal_name");
             JSONArray meal_sectionsJSON= jsonObject.getJSONArray("meal_sections");
 
             for(int i=0; i<meal_sectionsJSON.length(); i++){
-                sectionItems.add(new Section(meal_sectionsJSON.getJSONObject(i)));
+                sections.add(new Section(meal_sectionsJSON.getJSONObject(i)));
             }
         }catch (JSONException e){
             e.printStackTrace();
         }
+    }
+    public ArrayList<Section> getSections(){
+        return sections;
+    }
+    public String getName(){
+        return name;
     }
 }

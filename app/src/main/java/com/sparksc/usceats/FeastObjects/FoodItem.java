@@ -9,9 +9,9 @@ import java.io.Serializable;
  * Created by adityaaggarwal on 3/15/16.
  */
 public class FoodItem implements Serializable {
-    String foodName;
-    boolean isV;
-    boolean isVT;
+    private String foodName;
+    private boolean isV;
+    private boolean isVT;
     FoodItem(JSONObject jsonObject){
         try {
             String tempFoodName=jsonObject.getString("food_name");
@@ -31,4 +31,17 @@ public class FoodItem implements Serializable {
             e.printStackTrace();
         }
     }
+
+    public String getFoodName(){
+        return foodName;
+    }
+
+    public boolean isV(){
+        return isV;
+    }
+    public boolean isVT(){
+        return isVT;
+    }
+
+
 }

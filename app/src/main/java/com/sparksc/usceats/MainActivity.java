@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     SectionPagerAdapter sectionPagerAdapter;
     boolean isWeekend = false;
-
+    USCDatabaseManager databaseManager;
+    FeastforAndroid feastforAndroid;
     // endregion
 
     // region Fundamentals
@@ -39,9 +40,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.splash);
+
+
+
+        feastforAndroid= FeastforAndroid.getInstance(this);
+        feastforAndroid.setMainActivity(this);
+
+
+    }
+    public void populateUI(){
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        //databaseManager.refreshRestaurants();
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             toolbar.showOverflowMenu();
@@ -51,11 +62,10 @@ public class MainActivity extends AppCompatActivity {
             isWeekend = true;
         }
 
+
         setupSpinner();
         setupTabs();
-
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -173,20 +183,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             Bundle args = new Bundle();
             DiningHallFragment fragment = new DiningHallFragment();
-            switch (position) {
-                case 0:
-                    args.putInt(DiningHallUtils.DINING_HALL_TYPE,
-                            DiningHallUtils.DiningHallType.EVK.ordinal());
-                    break;
-                case 1:
-                    args.putInt(DiningHallUtils.DINING_HALL_TYPE,
-                            DiningHallUtils.DiningHallType.PARKSIDE.ordinal());
-                    break;
-                case 2:
-                    args.putInt(DiningHallUtils.DINING_HALL_TYPE,
-                            DiningHallUtils.DiningHallType.CAFE_84.ordinal());
-                    break;
-            }
+            args.putString("Dining Hall ID",feastforAndroid.getRestaurants().get(position).getId());
             // sets the current meal time, so each fragment can show correct info accordingly
             args.putInt(DiningHallUtils.MEAL_TIME,
                     DiningHallUtils.getCurrentMealTime().ordinal());
@@ -197,21 +194,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return feastforAndroid.getRestaurants().size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return DiningHallUtils.EVK_STRING;
-                case 1:
-                    return DiningHallUtils.PARKSIDE_STRING;
-                case 2:
-                    return DiningHallUtils.CAFE_84_STRING;
-                default:
-                    return DiningHallUtils.EVK_STRING;
-            }
+            return feastforAndroid.getRestaurants().get(position).getName();
         }
     }
 

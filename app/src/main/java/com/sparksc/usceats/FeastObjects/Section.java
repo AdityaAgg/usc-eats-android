@@ -11,8 +11,8 @@ import java.util.ArrayList;
  * Created by adityaaggarwal on 3/15/16.
  */
 public class Section implements Serializable {
-        public String name;
-        public ArrayList<FoodItem> foodItems;
+        private String name;
+        private ArrayList<FoodItem> foodItems=new ArrayList<>();
         public Section(JSONObject jsonObject){
             try {
                 name = jsonObject.getString("section_name");
@@ -25,6 +25,14 @@ public class Section implements Serializable {
                 e.printStackTrace();
             }
         }
+        public ArrayList<FoodItem> getFoodItems(){
+            return foodItems;
+        }
+        public String getName(){
+            return name;
+        }
+
+
     }
 
 
