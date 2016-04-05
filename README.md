@@ -7,3 +7,7 @@
 - API built for accessing data and parsing it into objects
 - 90% done with data getting stored in SQLite database memory via USCDatabaseManager SQLiteHelper object
 
+**Work in Progress, Screenshots...**
+<br>
+<img width="24%" src="assets/screenshot.png"> </img> 
+
