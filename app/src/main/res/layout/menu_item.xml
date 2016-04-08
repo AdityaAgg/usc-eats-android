@@ -24,40 +24,12 @@
                 android:layout_height="wrap_content"
                 android:text="Pastries"
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-            <LinearLayout
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="6">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="start"
-                        android:id="@+id/food_item_text"
-                        android:text="Test Text"
-                        android:textSize="16sp"
-                        android:textColor="#000000"
-                        android:padding="5dp"
+            <com.sparksc.usceats.NonScrollListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:id="@+id/food_list"/>
 
-                        android:layout_gravity="center_vertical"
-                        />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    >
-                    <ImageView
-                        android:layout_width="18sp"
-                        android:layout_height="18sp"
-                        android:id="@+id/dietary_identifier"
-                        />
-                </LinearLayout>
-            </LinearLayout>
 
         </LinearLayout>
 

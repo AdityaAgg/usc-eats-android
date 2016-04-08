@@ -106,7 +106,7 @@ public class USCDatabaseManager extends SQLiteOpenHelper {
 
 
     public ArrayList<Menu> getMenusfromDatabase(){
-        Cursor menuCursor= getReadableDatabase().rawQuery("SELECT FROM " + MENU_TABLE_NAME, null);
+        Cursor menuCursor= getReadableDatabase().rawQuery("SELECT * FROM " + MENU_TABLE_NAME, null);
         menuCursor.moveToFirst();
 
         Gson gson=new Gson();
@@ -117,7 +117,7 @@ public class USCDatabaseManager extends SQLiteOpenHelper {
     }
 
     public ArrayList<Restaurant> getRestaurantsfromDatabase(){
-        Cursor restaurantCursor= getReadableDatabase().rawQuery("SELECT FROM " + RESTAURANT_TABLE_NAME, null);
+        Cursor restaurantCursor= getReadableDatabase().rawQuery("SELECT * FROM " + RESTAURANT_TABLE_NAME, null);
         restaurantCursor.moveToFirst();
 
         Gson gson=new Gson();
@@ -143,5 +143,6 @@ public class USCDatabaseManager extends SQLiteOpenHelper {
             Gson gson=new Gson();
             getWritableDatabase().execSQL("DELETE FROM " + MENU_TABLE_NAME);
             getWritableDatabase().execSQL(INSERT_INTO_MENUS + "('" + gson.toJson(menus) + "');");
+            Log.d("Aditya: debugging","debugging");
     }
 }

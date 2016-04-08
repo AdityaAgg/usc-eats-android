@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -86,22 +87,26 @@ public class DiningHallFragment extends Fragment {
 
                     Meal meal= menuofDay.getMeal("Breakfast");
                     if(meal!=null)
-                    for (Section section:meal.getSections()) {
-                        sections.add(section);
-                    }
+                        if (meal.getSections()!=null)
+                            for (Section section:meal.getSections()) {
+                                sections.add(section);
+                            }
                     break;
                 case LUNCH:
                     meal=menuofDay.getMeal("Lunch");
-                    for (Section section:meal.getSections()) {
-                        sections.add(section);
-                    }
+                    if(meal!=null)
+                        if(meal.getSections()!=null)
+                            for (Section section:meal.getSections()) {
+                                sections.add(section);
+                            }
                     break;
                 case DINNER:
                     meal=menuofDay.getMeal("Dinner");
                     if(meal!=null)
-                    for (Section section:meal.getSections()) {
-                        sections.add(section);
-                    }
+                        if(meal.getSections()!=null)
+                            for (Section section:meal.getSections()) {
+                                sections.add(section);
+                            }
                     break;
             }
             recyclerViewAdapter.notifyDataSetChanged();
@@ -189,18 +194,45 @@ public class DiningHallFragment extends Fragment {
 
             public void setData(Section section){
                 diningHallStationHeaderView.setText(section.getName());
-                for(FoodItem foodItem:section.getFoodItems()){
-                    TextView foodItemName=(TextView)view.findViewById(R.id.food_item_text);
-                    foodItemName.setText(foodItem.getFoodName());
-                    ImageView imageView=(ImageView)view.findViewById(R.id.dietary_identifier);
-                    if(foodItem.isV()){
+                FoodListAdapter foodListAdapter = new FoodListAdapter(context, R.id.food_list, section.getFoodItems());
+                NonScrollListView foodListView= (NonScrollListView)view.findViewById(R.id.food_list);
+                foodListView.setAdapter(foodListAdapter);
+            }
+
+            public class FoodListAdapter extends ArrayAdapter<FoodItem> {
+
+                public FoodListAdapter(Context context, int resource, List<FoodItem> items) {
+                    super(context, resource, items);
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+
+                    View v = convertView;
+
+                    if (v == null) {
+                        LayoutInflater vi;
+                        vi = LayoutInflater.from(getContext());
+                        v = vi.inflate(R.layout.item_row, null);
+                    }
+                    TextView foodItemName=(TextView)v.findViewById(R.id.food_item_text);
+                    foodItemName.setText(getItem(position).getFoodName());
+                    ImageView imageView=(ImageView)v.findViewById(R.id.dietary_identifier);
+                    if(getItem(position).isV()){
                         imageView.setImageResource(R.drawable.iconvegan);
-                    } else if(foodItem.isVT()){
+                    } else if(getItem(position).isVT()){
                         imageView.setImageResource(R.drawable.iconvegetarian);
                     } else {
                         imageView.setVisibility(View.GONE);
                     }
+
+
+                    return v;
                 }
+
+
+
+
             }
         }
     }

@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.sparksc.usceats.utils.DiningHallUtils;
+import com.sparksc.usceats.utils.NetworkingUtils;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     SectionPagerAdapter sectionPagerAdapter;
     boolean isWeekend = false;
-    USCDatabaseManager databaseManager;
     FeastforAndroid feastforAndroid;
     // endregion
 
@@ -45,7 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         feastforAndroid= FeastforAndroid.getInstance(this);
-        feastforAndroid.setMainActivity(this);
+        if(NetworkingUtils.isNetworkAvailable(this))
+            feastforAndroid.setMainActivity(this);
+        else
+            populateUI();
+
+
 
 
     }

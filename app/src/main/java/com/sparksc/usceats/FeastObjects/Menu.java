@@ -27,8 +27,8 @@ public class Menu implements Serializable{
             for(int i=0; i<mealsJSON.length(); i++){
                 meals.add(new Meal(mealsJSON.getJSONObject(i)));
             }
-            String dateString=jsonObject.getString("date");
-            date= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).parse(jsonObject.getString("date"));
+            String dateString=jsonObject.getString("_updated");
+            date= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US).parse(dateString);
         } catch (JSONException|ParseException e) {
             e.printStackTrace();
         }

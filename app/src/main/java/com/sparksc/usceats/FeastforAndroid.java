@@ -1,8 +1,8 @@
 package com.sparksc.usceats;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -33,9 +33,12 @@ public class FeastforAndroid {
     FeastforAndroid(Context context){
         init(context);
     }
+
+    //called by main (for initializing data)
     public void init(Context context) {
+        uscDatabaseManager=USCDatabaseManager.getInstance(context);
         refreshRestaurants(context);
-        refreshMenus(context);
+
     }
 
     public static FeastforAndroid getInstance(Context context){
@@ -86,9 +89,9 @@ public class FeastforAndroid {
             Calendar calendar=Calendar.getInstance();
             calendar.setTime(date);
             //TODO change later for testing at the moment
-            int dayofMonth=7;
+            int dayofMonth=calendar.get(Calendar.DAY_OF_MONTH);
             int year=calendar.get(Calendar.YEAR);
-            int month=1;
+            int month=calendar.get(Calendar.MONTH);
 
             Date menuDate=menu.getDate();
             calendar.setTime(menuDate);
@@ -131,8 +134,7 @@ public class FeastforAndroid {
             String url = "https://uscdata.org/eats/v1/restaurants/";
 
 // Request a string response from the provided URL.
-
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+            StringRequest stringRequest = new StringRequest(url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -143,8 +145,9 @@ public class FeastforAndroid {
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     restaurants.add(new Restaurant(jsonArray.getJSONObject(i)));
                                 }
-                                uscDatabaseManager = USCDatabaseManager.getInstance(context);
+
                                 uscDatabaseManager.storeRestaurants(getRestaurants());
+                                refreshMenus(context);
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -155,13 +158,21 @@ public class FeastforAndroid {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //this is a place in the code that should not be reached
-                    throw new RuntimeException("Failed to query restaurants");
+                    Log.d("Aditya Error", "Failed to query restaurants");
+                    refreshRestaurantsfromDatabase();
+                    refreshMenus(context);
                 }
             });
 // Add the request to the RequestQueue.
-            queue.add(stringRequest);
+            try {
+                queue.add(stringRequest);
+            } catch(Exception e){
+                Log.w("Aditya Error:", e.getMessage());
+                refreshRestaurantsfromDatabase();
+            }
         } else {
             refreshRestaurantsfromDatabase();
+            refreshMenus(context);
         }
 
     }
@@ -177,8 +188,7 @@ public class FeastforAndroid {
             String url = "https://uscdata.org/eats/v1/menus/";
 
 // Request a string response from the provided URL.
-
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+            StringRequest stringRequest = new StringRequest(url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -189,7 +199,6 @@ public class FeastforAndroid {
                                 for (int i = 0; i < jsonArray.length(); i++) {
                                     menus.add(new Menu(jsonArray.getJSONObject(i)));
                                 }
-                                USCDatabaseManager uscDatabaseManager = USCDatabaseManager.getInstance(context);
                                 uscDatabaseManager.storeMenus(getMenus());
                                 ma.populateUI();
                             } catch (JSONException e) {
@@ -201,14 +210,25 @@ public class FeastforAndroid {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //this is a place in the code that should not be reached
-                    throw new RuntimeException("Failed to query menus");
+                    Log.d("Aditya Error:","Failed to query menus");
+                    refreshMenusfromDatabase();
+                    ma.populateUI();
+
                 }
             });
             // Add the request to the RequestQueue.
-            queue.add(stringRequest);
+            try {
+                queue.add(stringRequest);
+            } catch(Exception e){
+                Log.w("Aditya Error:", e.getMessage());
+                refreshMenusfromDatabase();
+                ma.populateUI();
+            }
         } else {
-            refreshRestaurantsfromDatabase();
-            ma.populateUI();
+            Log.i("Aditya:", "No network connection");
+            refreshMenusfromDatabase();
+            if(ma!=null)
+                ma.populateUI();
         }
     }
 
