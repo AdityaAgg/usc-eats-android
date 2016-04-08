@@ -64,6 +64,22 @@ public class FeastforAndroid {
         return menus;
     }
 
+
+    public Menu getMenuOnDayandRestaurant(int dayParam, int monthParam, int yearParam, String restaurantID){
+        for(Menu menu:menus){
+            Calendar calendar=Calendar.getInstance();
+
+            Date menuDate=menu.getDate();
+            calendar.setTime(menuDate);
+            int dayofMonthMenuObject=calendar.get(Calendar.DAY_OF_MONTH);
+            int yearMenuObject=calendar.get(Calendar.YEAR);
+            int monthMenuObject=calendar.get(Calendar.MONTH);
+            if(dayParam==dayofMonthMenuObject && yearParam==yearMenuObject && monthParam==monthMenuObject && restaurantID.equals(menu.getRestaurantID())){
+                return menu;
+            }
+        }
+        return null;
+    }
     public Menu getMenuOnDayandRestaurant(Date date, Restaurant restaurant){
         for(Menu menu:menus){
             Calendar calendar=Calendar.getInstance();

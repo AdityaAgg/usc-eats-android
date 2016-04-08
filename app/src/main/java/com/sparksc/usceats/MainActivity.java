@@ -1,5 +1,7 @@
 package com.sparksc.usceats;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -13,8 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 
+import com.sparksc.usceats.utils.CalendarUtils;
 import com.sparksc.usceats.utils.DiningHallUtils;
 import com.sparksc.usceats.utils.NetworkingUtils;
 
@@ -33,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
     SectionPagerAdapter sectionPagerAdapter;
     boolean isWeekend = false;
     FeastforAndroid feastforAndroid;
+    public static int day_x=-1;
+    public static int month_x=-1;
+    public static int year_x=-1;
+
+    DiningHallFragment fragment;
     // endregion
 
     // region Fundamentals
@@ -42,14 +51,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
 
-
+        if(year_x==-1 || month_x==-1 || day_x==-1) {
+            year_x = CalendarUtils.getYear();
+            month_x = CalendarUtils.getMonth();
+            day_x = CalendarUtils.getDay()+1;
+        }
 
         feastforAndroid= FeastforAndroid.getInstance(this);
         if(NetworkingUtils.isNetworkAvailable(this))
             feastforAndroid.setMainActivity(this);
         else
             populateUI();
-
 
 
 
@@ -80,14 +92,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.date:
-                // User chose the "Settings" item, show the app settings UI...
+            case R.id.action_calendar:
+                showDialog(0);
+
                 return true;
 
-            case R.id.date2:
-                // User chose the "Favorite" action, mark the current item
-                // as a favorite...
-                return true;
+
 
             default:
                 // If we got here, the user's action was not recognized.
@@ -96,6 +106,32 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id==0){
+            return new DatePickerDialog(this, dpickerListener, year_x, month_x, day_x-1);
+        }
+        return null;
+    }
+
+    private DatePickerDialog.OnDateSetListener dpickerListener
+            = new DatePickerDialog.OnDateSetListener() {
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth){
+            year_x=year;
+            month_x=monthOfYear;
+            day_x=dayOfMonth+1;
+            String name = getFragmentTag(viewPager.getId(), viewPager.getCurrentItem());
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(name);
+            ((DiningHallFragment)fragment).setupRecyclerView();
+
+
+        }
+        private String getFragmentTag(int viewPagerId, int fragmentPosition)
+        {
+            return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
+        }
+    };
+
 
     // endregion
 

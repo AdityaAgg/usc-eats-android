@@ -23,7 +23,6 @@ import com.sparksc.usceats.FeastObjects.Section;
 import com.sparksc.usceats.utils.DiningHallUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import butterknife.Bind;
@@ -76,7 +75,8 @@ public class DiningHallFragment extends Fragment {
         Log.d("Nikhil", "Meal Time: " + mealTime);
 
         FeastforAndroid feastforAndroid=FeastforAndroid.getInstance(getContext());
-        Menu menuofDay=feastforAndroid.getMenuOnDayandRestaurant(Calendar.getInstance().getTime(), diningHallType);
+        Log.d("Aditya: ", MainActivity.month_x+1+"/"+(MainActivity.day_x-1)+"/"+MainActivity.year_x);
+        Menu menuofDay=feastforAndroid.getMenuOnDayandRestaurant(MainActivity.day_x-1,MainActivity.month_x, MainActivity.year_x, diningHallType);
         if (selectedMealTime != mealTime && sections != null && selectedDay!=null) {
             selectedMealTime = mealTime;
             sections.clear();
@@ -117,9 +117,10 @@ public class DiningHallFragment extends Fragment {
 
     // region Helpers
 
-    private void setupRecyclerView() {
+    public void setupRecyclerView() {
         FeastforAndroid feastforAndroid=FeastforAndroid.getInstance(getContext());
-        Menu menu = feastforAndroid.getMenuOnDayandRestaurant(Calendar.getInstance().getTime(), diningHallType);
+        Log.d("Aditya: ", MainActivity.month_x+1+"/"+(MainActivity.day_x-1)+"/"+MainActivity.year_x);
+        Menu menu = feastforAndroid.getMenuOnDayandRestaurant(MainActivity.day_x-1,MainActivity.month_x, MainActivity.year_x, diningHallType);
         if(menu!=null) {
             if (selectedMealTime == DiningHallUtils.MealTime.BREAKFAST) {
                 if(menu.getMeal("Breakfast")!=null)
